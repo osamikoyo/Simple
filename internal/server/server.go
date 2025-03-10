@@ -34,7 +34,5 @@ func (s *Server) SetHandler(mux *http.ServeMux) {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	s.logger.Info("stopping server...")
-
 	return s.Shutdown(ctx)
 }

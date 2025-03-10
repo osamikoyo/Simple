@@ -30,7 +30,7 @@ func main() {
 		s.Shutdown(ctx)
 	}()
 
-	if err := s.Run();err != nil{
+	if err := s.Run();err != nil && err != http.ErrServerClosed{
 		logger.Error(err)
 	}
 }

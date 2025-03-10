@@ -1,13 +1,14 @@
 package logger
 
-
 import (
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/sirupsen/logrus"
 )
 
-type Logger struct{
+type Logger struct {
 	*logrus.Logger
 }
 
@@ -43,9 +44,23 @@ func (f *CustomFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 func Init() *Logger {
 	logger := logrus.New()
 
-    logger.SetFormatter(&CustomFormatter{})
+	stderrOutput := os.Stderr
+	logger.SetOutput(stderrOutput)
+	logger.SetFormatter(&CustomFormatter{})
 
-    logger.SetReportCaller(true)
+	fileOutput, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		logger.Fatalf("Failed to open log file: %v", err)
+	}
+
+	multiWriter := io.MultiWriter(stderrOutput, fileOutput)
+	logger.SetOutput(multiWriter)
+
+	logger.SetFormatter(&CustomFormatter{})
+
+	logger.SetReportCaller(true)
+
+	logger.SetLevel(logrus.DebugLevel)
 
 	return &Logger{logger}
 }
